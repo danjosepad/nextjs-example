@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 // ssr option makes component only be rendered from client side
 const AddToCartModal = dynamic(
-  () => import('../../../components/AddToCartModal'),
+  () => import('@/components/AddToCartModal'),
   { loading: () => <p>Carregando...</p> }
 )
 
