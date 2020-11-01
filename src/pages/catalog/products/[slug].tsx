@@ -1,27 +1,65 @@
+
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import Prismic from 'prismic-javascript';
+import { Document } from 'prismic-javascript/types/documents';
+import PrismicDOM from 'prismic-dom';
+import Link from 'next/link';
 
-// ssr option makes component only be rendered from client side
-const AddToCartModal = dynamic(
-  () => import('@/components/AddToCartModal'),
-  { loading: () => <p>Carregando...</p> }
-)
+// Product imports
 
-export default function Product() {
+import { client } from '@/lib/prismic';
+import { sanitizeProp } from '@/lib/sanitizeDOM';
+
+//  ssr option makes component only be rendered from client side
+// const AddToCartModal = dynamic(
+//   () => import('@/components/AddToCartModal'),
+//   { loading: () => <p>Carregando...</p> }
+// )
+
+interface ProductProps {
+  product: Document;
+}
+
+export default function Product({ product }: ProductProps) {
   const router = useRouter();
-  const [isAddToCartModalVisible, setIsAddToCartModalVisible] = useState(false);
 
-  function handleAddToCart() {
-    setIsAddToCartModalVisible(true);
+  // Because of getStaticPaths, when page starts to be loaded we create this condition
+  // to improve UX
+  if(router.isFallback) {
+    return <p>Carregando...</p>
   }
-  
+
+
   return (
     <div>
-      <h1>{router.query.slug}</h1>
+      <h1>{PrismicDOM.RichText.asText(product.data.title)}</h1>
 
-      <button onClick={handleAddToCart}>Add to cart</button>
-      {isAddToCartModalVisible &&  <AddToCartModal />}
+      <div
+        {...sanitizeProp(PrismicDOM.RichText.asHtml(product.data.description))}
+      />
     </div>
   )
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Optimize only most searched products
+
+  return {
+    paths: [],
+    fallback: true,
+  }
+}
+
+export const getStaticProps: GetStaticProps<ProductProps> = async (context) => {
+  const { slug } = context.params;
+
+  const product = await client().getByUID('product', String(slug), {});
+
+  return {
+    props: {
+      product
+    },
+    revalidate: 10 // Lower to maintain the correct price
+  }
 }
