@@ -1,16 +1,16 @@
 import { GetServerSideProps } from 'next';
+import Link from 'next/link';
+import { Document } from 'prismic-javascript/types/documents';
+import Prismic from 'prismic-javascript';
+import PrismicDOM from 'prismic-dom';
+
+// Project imports
 import { Title } from '@/pages/styles/pages/Home';
-
-
 import SEO from '@/components/SEO';
-
-interface IProduct {
-  id: String;
-  title: String;
-}
+import { client } from '@/lib/prismic';
 
 interface HomeProps {
-  recommendedProducts: IProduct[];
+  recommendedProducts: Document[];
 }
 
 // Time to First Byte = 2s
@@ -18,8 +18,8 @@ interface HomeProps {
 export default function Home({ recommendedProducts }: HomeProps) {
   return (
     <div>
-      <SEO 
-        title="DevCommerce, a loja feita para você" 
+      <SEO
+        title="DevCommerce, a loja feita para você"
         shouldExcludeTittleSuffix />
       <section>
         <Title>Hello World</Title>
@@ -28,7 +28,11 @@ export default function Home({ recommendedProducts }: HomeProps) {
           {recommendedProducts.map(recommendedProduct => {
             return (
               <li key={+recommendedProduct.id}>
-                {recommendedProduct.title}
+                <Link href={`/catalog/products/${recommendedProduct.uid}`}>
+                  <a>
+                    {PrismicDOM.RichText.asText(recommendedProduct.data.title)}
+                  </a>
+                </Link>
               </li>
             )
           })}
@@ -39,12 +43,17 @@ export default function Home({ recommendedProducts }: HomeProps) {
 }
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/recommended`);
-  const recommendedProducts = await response.json();
-  
+  const recommendedProducts = await client().query([
+    // Return all elements that have product type
+
+    // Predicates = where
+    Prismic.Predicates.at('document.type', 'product')
+  ]);
+
+
   return {
     props: {
-      recommendedProducts
+      recommendedProducts: recommendedProducts.results,
     }
   }
 }
