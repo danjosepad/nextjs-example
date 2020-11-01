@@ -1,15 +1,12 @@
 
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
-import Prismic from 'prismic-javascript';
 import { Document } from 'prismic-javascript/types/documents';
 import PrismicDOM from 'prismic-dom';
-import Link from 'next/link';
 
 // Product imports
 
 import { client } from '@/lib/prismic';
-import { sanitizeProp } from '@/lib/sanitizeDOM';
 
 //  ssr option makes component only be rendered from client side
 // const AddToCartModal = dynamic(
@@ -33,11 +30,14 @@ export default function Product({ product }: ProductProps) {
 
   return (
     <div>
+      {console.log(product.data)}
       <h1>{PrismicDOM.RichText.asText(product.data.title)}</h1>
 
+      <img src={product.data.thumbnail.url} width="500" alt={product.data.thumbnail.alt} />
       <div
-        {...sanitizeProp(PrismicDOM.RichText.asHtml(product.data.description))}
+       dangerouslySetInnerHTML={ {__html: PrismicDOM.RichText.asHtml(product.data.rich_text)}}
       />
+      <p>Price: ${product.data.price }</p>
     </div>
   )
 }
