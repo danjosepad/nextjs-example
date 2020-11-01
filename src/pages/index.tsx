@@ -5,7 +5,6 @@ import Prismic from 'prismic-javascript';
 import PrismicDOM from 'prismic-dom';
 
 // Project imports
-import { Title } from '@/pages/styles/pages/Home';
 import SEO from '@/components/SEO';
 import { client } from '@/lib/prismic';
 
@@ -22,7 +21,7 @@ export default function Home({ recommendedProducts }: HomeProps) {
         title="DevCommerce, a loja feita para você"
         shouldExcludeTittleSuffix />
       <section>
-        <Title>Hello World</Title>
+        <h1>Hello World</h1>
 
         <ul>
           {recommendedProducts.map(recommendedProduct => {

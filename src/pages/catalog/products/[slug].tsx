@@ -30,7 +30,6 @@ export default function Product({ product }: ProductProps) {
 
   return (
     <div>
-      {console.log(product.data)}
       <h1>{PrismicDOM.RichText.asText(product.data.title)}</h1>
 
       <img src={product.data.thumbnail.url} width="500" alt={product.data.thumbnail.alt} />

@@ -6,6 +6,10 @@ export default createGlobalStyle`
     padding: 0;
   }
 
+  h1 {
+    color: #8257e5;
+  }
+
   body {
     background: #121214;
     color: #FFF;
